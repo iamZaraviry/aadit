@@ -1,139 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Google‑Style Simple Calculator</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-        }
-        .calculator {
-            background-color: white;
-            border: 1px solid #dcdcdc;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 320px;
-        }
-        .screen {
-            background-color: #eeeeee;
-            padding: 20px;
-            font-size: 36px;
-            text-align: right;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            overflow: hidden;
-        }
-        .keys {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
-            background-color: #dcdcdc;
-        }
-        .keys button {
-            padding: 20px;
-            font-size: 24px;
-            border: none;
-            background-color: white;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .keys button:hover {
-            background-color: #f1f1f1;
-        }
-        .keys .operator {
-            color: white;
-            background-color: #4285F4;
-        }
-        .keys .operator:hover {
-            background-color: #357ae8;
-        }
-        .keys .equals {
-            background-color: #34A853;
-            color: white;
-        }
-        .keys .equals:hover {
-            background-color: #2c8e46;
-        }
-        .keys .clear {
-            background-color: #EA4335;
-            color: white;
-        }
-        .keys .clear:hover {
-            background-color: #d93025;
-        }
-    </style>
-</head>
-<body>
-
-<div class="calculator">
-    <div id="screen" class="screen">0</div>
-    <div class="keys">
-        <button class="clear" onclick="clearScreen()">C</button>
-        <button onclick="deleteLast()">⌫</button>
-        <button onclick="appendValue('%')">%</button>
-        <button class="operator" onclick="appendValue('/')">÷</button>
-
-        <button onclick="appendValue('7')">7</button>
-        <button onclick="appendValue('8')">8</button>
-        <button onclick="appendValue('9')">9</button>
-        <button class="operator" onclick="appendValue('*')">×</button>
-
-        <button onclick="appendValue('4')">4</button>
-        <button onclick="appendValue('5')">5</button>
-        <button onclick="appendValue('6')">6</button>
-        <button class="operator" onclick="appendValue('-')">−</button>
-
-        <button onclick="appendValue('1')">1</button>
-        <button onclick="appendValue('2')">2</button>
-        <button onclick="appendValue('3')">3</button>
-        <button class="operator" onclick="appendValue('+')">＋</button>
-
-        <button onclick="appendValue('0')" style="grid-column: span 2;">0</button>
-        <button onclick="appendValue('.')">.</button>
-        <button class="equals" onclick="calculate()">=</button>
-    </div>
-</div>
-
-<script>
-    const screen = document.getElementById('screen');
-
-    function appendValue(val) {
-        if (screen.innerText === '0' || screen.innerText === 'Error') {
-            screen.innerText = val;
-        } else {
-            screen.innerText += val;
-        }
+  <meta charset="UTF-8" />
+  <title>Google-Style Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #f1f3f4;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
 
-    function clearScreen() {
-        screen.innerText = '0';
+    .calculator {
+      width: 340px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .display {
+      background: #202124;
+      color: white;
+      font-size: 32px;
+      padding: 20px;
+      text-align: right;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #e0e0e0;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #d6d6d6;
+    }
+
+    .operator {
+      background-color: #f1f3f4;
+    }
+
+    .operator:hover {
+      background-color: #e6e8e9;
+    }
+
+    .clear {
+      background-color: #f28b82;
+      color: white;
+    }
+
+    .clear:hover {
+      background-color: #e06666;
+    }
+
+    .equals {
+      background-color: #4285f4;
+      color: white;
+      grid-column: span 2;
+    }
+
+    .equals:hover {
+      background-color: #3367d6;
+    }
+
+    @media (max-width: 400px) {
+      .calculator {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div id="display" class="display">0</div>
+    <div class="buttons">
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button onclick="deleteLast()">⌫</button>
+      <button class="operator" onclick="append('%')">%</button>
+      <button class="operator" onclick="append('/')">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('*')">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('-')">−</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('+')">+</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+
+    function append(value) {
+      if (display.innerText === '0' || display.innerText === 'Error') {
+        display.innerText = value;
+      } else {
+        display.innerText += value;
+      }
+    }
+
+    function clearDisplay() {
+      display.innerText = '0';
     }
 
     function deleteLast() {
-        let text = screen.innerText;
-        if (text.length > 1 && text !== 'Error') {
-            screen.innerText = text.slice(0, -1);
-        } else {
-            screen.innerText = '0';
-        }
+      const text = display.innerText;
+      if (text.length > 1 && text !== 'Error') {
+        display.innerText = text.slice(0, -1);
+      } else {
+        display.innerText = '0';
+      }
     }
 
     function calculate() {
-        try {
-            // Using eval is simple but be cautious in production
-            let result = eval(screen.innerText.replace('÷','/').replace('×','*'));
-            screen.innerText = result;
-        } catch (e) {
-            screen.innerText = 'Error';
-        }
+      try {
+        const result = eval(display.innerText.replace(/÷/g, '/').replace(/×/g, '*'));
+        display.innerText = result;
+      } catch {
+        display.innerText = 'Error';
+      }
     }
-</script>
-
+  </script>
 </body>
 </html>
