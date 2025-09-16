@@ -1,156 +1,280 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Google-Style Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cafe Order — Web POS</title>
   <style>
-    body {
-      margin: 0;
-      background: #f1f3f4;
-      font-family: 'Roboto', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa6b2;
+      --accent:#f59e0b;
+      --accent-2:#fb923c;
+      --glass: rgba(255,255,255,0.04);
+      --success:#10b981;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#071027 0%, #07172a 60%);color:#e6eef6;min-height:100vh;padding:28px}
+    .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:20px}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    h1{margin:0;font-size:20px;letter-spacing:0.4px}
+    .subtitle{color:var(--muted);font-size:13px}
 
-    .calculator {
-      width: 340px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-    }
+    .menu{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .item{background:var(--glass);padding:12px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,0.03)}
+    .item:hover{transform:translateY(-4px);transition:transform .14s}
+    .item .left{display:flex;flex-direction:column}
+    .item .title{font-weight:600}
+    .price{font-weight:700}
 
-    .display {
-      background: #202124;
-      color: white;
-      font-size: 32px;
-      padding: 20px;
-      text-align: right;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
+    .controls{margin-top:14px;display:flex;gap:8px;align-items:center}
+    .controls input[type=text]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .controls button{padding:10px 12px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#04111a;font-weight:700;cursor:pointer}
 
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px}
+    .order-list{max-height:420px;overflow:auto;margin-top:10px}
+    .order-row{display:flex;justify-content:space-between;gap:10px;padding:8px 6px;border-bottom:1px dashed rgba(255,255,255,0.02);align-items:center}
+    .qty{display:flex;align-items:center;gap:6px}
+    .qty button{width:30px;height:30px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);cursor:pointer}
+    .small-muted{color:var(--muted);font-size:13px}
 
-    button {
-      font-size: 20px;
-      padding: 20px;
-      border: none;
-      border-radius: 8px;
-      background-color: #e0e0e0;
-      color: #000;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+    .receipt{margin-top:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:10px}
+    .totals{display:flex;justify-content:space-between;margin-top:6px}
+    .final{font-size:18px;font-weight:800}
 
-    button:hover {
-      background-color: #d6d6d6;
-    }
+    .actions{display:flex;gap:8px;margin-top:12px}
+    .actions button{flex:1;padding:10px;border-radius:10px;border:none;background:#0ea5a2;color:#021212;font-weight:700;cursor:pointer}
+    .actions .clear{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 
-    .operator {
-      background-color: #f1f3f4;
-    }
+    footer{grid-column:1/-1;margin-top:18px;color:var(--muted);font-size:13px}
 
-    .operator:hover {
-      background-color: #e6e8e9;
-    }
-
-    .clear {
-      background-color: #f28b82;
-      color: white;
-    }
-
-    .clear:hover {
-      background-color: #e06666;
-    }
-
-    .equals {
-      background-color: #4285f4;
-      color: white;
-      grid-column: span 2;
-    }
-
-    .equals:hover {
-      background-color: #3367d6;
-    }
-
-    @media (max-width: 400px) {
-      .calculator {
-        width: 95%;
-      }
-    }
+    @media (max-width:980px){.wrap{grid-template-columns:1fr;}.panel{order:2}}
   </style>
 </head>
 <body>
-  <div class="calculator">
-    <div id="display" class="display">0</div>
-    <div class="buttons">
-      <button class="clear" onclick="clearDisplay()">C</button>
-      <button onclick="deleteLast()">⌫</button>
-      <button class="operator" onclick="append('%')">%</button>
-      <button class="operator" onclick="append('/')">÷</button>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>☕ The Aadit's Cafe — Web Order</h1>
+        <div class="subtitle">Click an item, or type number/name (e.g., "1" or "Espresso"). 30% off on 3+ items.</div>
+      </div>
+      <div class="subtitle">Simple demo • Save as <code>cafe.html</code> and open in any browser</div>
+    </header>
 
-      <button onclick="append('7')">7</button>
-      <button onclick="append('8')">8</button>
-      <button onclick="append('9')">9</button>
-      <button class="operator" onclick="append('*')">×</button>
+    <section class="menu panel">
+      <h3 style="margin:0 0 12px 0">Menu</h3>
+      <div class="menu-grid" id="menuGrid">
+        <!-- items rendered by JS -->
+      </div>
 
-      <button onclick="append('4')">4</button>
-      <button onclick="append('5')">5</button>
-      <button onclick="append('6')">6</button>
-      <button class="operator" onclick="append('-')">−</button>
+      <div class="controls">
+        <input id="textInput" placeholder="Enter item number or name (or type 'done')" aria-label="item input">
+        <button id="addBtn">Add</button>
+      </div>
 
-      <button onclick="append('1')">1</button>
-      <button onclick="append('2')">2</button>
-      <button onclick="append('3')">3</button>
-      <button class="operator" onclick="append('+')">+</button>
+      <div style="margin-top:12px" class="small-muted">Tip: You can click any menu card to add it quickly. Use the + / - on the order to change quantity.</div>
+    </section>
 
-      <button onclick="append('0')">0</button>
-      <button onclick="append('.')">.</button>
-      <button class="equals" onclick="calculate()">=</button>
-    </div>
+    <aside class="panel">
+      <h3 style="margin:0">Your Order</h3>
+      <div class="order-list" id="orderList">
+        <!-- order rows -->
+      </div>
+
+      <div class="receipt" id="receipt">
+        <div class="totals"><div class="small-muted">Subtotal</div><div id="subtotal">0</div></div>
+        <div class="totals"><div class="small-muted">Discount</div><div id="discount">0</div></div>
+        <div class="totals"><div class="final">Total</div><div class="final" id="total">0</div></div>
+      </div>
+
+      <div class="actions">
+        <button id="checkout">Checkout</button>
+        <button id="clear" class="clear">Clear</button>
+      </div>
+    </aside>
+
+    <footer>Receipt shows market prices. Discount applies automatically when quantity of items (sum of quantities) is 3 or more.</footer>
   </div>
 
   <script>
-    const display = document.getElementById('display');
+    // Data
+    const menu = [
+      {id:1, name:'Espresso', price:150},
+      {id:2, name:'Cappuccino', price:180},
+      {id:3, name:'Americano', price:200},
+      {id:4, name:'Mocha', price:220},
+      {id:5, name:'Iced Coffee', price:170}
+    ];
 
-    function append(value) {
-      if (display.innerText === '0' || display.innerText === 'Error') {
-        display.innerText = value;
-      } else {
-        display.innerText += value;
+    // State: map itemId -> qty
+    const state = new Map();
+
+    const menuGrid = document.getElementById('menuGrid');
+    const orderList = document.getElementById('orderList');
+    const textInput = document.getElementById('textInput');
+    const addBtn = document.getElementById('addBtn');
+    const subtotalEl = document.getElementById('subtotal');
+    const discountEl = document.getElementById('discount');
+    const totalEl = document.getElementById('total');
+    const checkout = document.getElementById('checkout');
+    const clearBtn = document.getElementById('clear');
+
+    // Render menu cards
+    function renderMenu(){
+      menuGrid.innerHTML = '';
+      menu.forEach(it => {
+        const card = document.createElement('div');
+        card.className = 'item';
+        card.tabIndex = 0;
+        card.innerHTML = <div class='left'><div class='title'>${it.id}) ${it.name}</div><div class='small-muted'>Market Price</div></div><div class='price'>Rs ${it.price}</div>;
+        card.addEventListener('click', ()=> addToOrder(it.id));
+        card.addEventListener('keypress', (e)=>{ if(e.key === 'Enter') addToOrder(it.id); });
+        menuGrid.appendChild(card);
+      });
+    }
+
+    function getItemByInput(input){
+      const t = input.trim();
+      if(!t) return null;
+      // 'done' handling
+      if(t.toLowerCase() === 'done') return 'done';
+      // match number
+      if(/^\d+$/.test(t)){
+        const id = Number(t);
+        return menu.find(m => m.id === id) || null;
       }
+      // match by name case-insensitive
+      const found = menu.find(m => m.name.toLowerCase() === t.toLowerCase());
+      if(found) return found;
+      // try partial match
+      const partial = menu.find(m => m.name.toLowerCase().includes(t.toLowerCase()));
+      return partial || null;
     }
 
-    function clearDisplay() {
-      display.innerText = '0';
+    function addToOrder(idOrItem, qty = 1){
+      let id = typeof idOrItem === 'number' ? idOrItem : idOrItem?.id;
+      if(!id) return;
+      state.set(id, (state.get(id)||0) + qty);
+      renderOrder();
     }
 
-    function deleteLast() {
-      const text = display.innerText;
-      if (text.length > 1 && text !== 'Error') {
-        display.innerText = text.slice(0, -1);
-      } else {
-        display.innerText = '0';
+    function renderOrder(){
+      orderList.innerHTML = '';
+      let subtotal = 0;
+      let totalItems = 0;
+      for(const [id, qty] of state.entries()){
+        const item = menu.find(m => m.id === id);
+        if(!item) continue;
+        subtotal += item.price * qty;
+        totalItems += qty;
+
+        const row = document.createElement('div');
+        row.className = 'order-row';
+        row.innerHTML = `
+          <div style='min-width:160px'>
+            <div style='font-weight:700'>${item.name}</div>
+            <div class='small-muted'>Rs ${item.price} each</div>
+          </div>
+          <div style='display:flex;align-items:center;gap:10px'>
+            <div class='qty'>
+              <button data-action='dec' data-id='${id}'>-</button>
+              <div style='min-width:28px;text-align:center'>${qty}</div>
+              <button data-action='inc' data-id='${id}'>+</button>
+            </div>
+            <div style='min-width:84px;text-align:right;font-weight:700'>Rs ${item.price * qty}</div>
+            <button data-action='rm' data-id='${id}' style='margin-left:8px;border-radius:8px;padding:6px;border:none;background:transparent;color:var(--muted);cursor:pointer'>Remove</button>
+          </div>
+        `;
+        orderList.appendChild(row);
       }
+
+      // discount logic: if totalItems >= 3, 30% off
+      let discount = 0;
+      if(totalItems >= 3) discount = subtotal * 0.30;
+      const final = subtotal - discount;
+
+      subtotalEl.textContent = Rs ${subtotal.toFixed(0)};
+      discountEl.textContent = Rs ${discount.toFixed(0)};
+      totalEl.textContent = Rs ${final.toFixed(0)};
+
+      // attach listeners for plus/minus/remove
+      orderList.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+          const id = Number(btn.dataset.id);
+          const act = btn.dataset.action;
+          if(act === 'inc') state.set(id, (state.get(id)||0)+1);
+          if(act === 'dec'){
+            const current = (state.get(id)||0)-1;
+            if(current <= 0) state.delete(id); else state.set(id, current);
+          }
+          if(act === 'rm') state.delete(id);
+          renderOrder();
+        });
+      });
     }
 
-    function calculate() {
-      try {
-        const result = eval(display.innerText.replace(/÷/g, '/').replace(/×/g, '*'));
-        display.innerText = result;
-      } catch {
-        display.innerText = 'Error';
+    addBtn.addEventListener('click', ()=>{
+      const val = textInput.value.trim();
+      if(!val) return;
+      const result = getItemByInput(val);
+      if(result === 'done'){
+        // simple checkout action
+        doCheckout();
+        return;
       }
+      if(!result){
+        alert('Invalid choice — try number (1-5) or the exact name.');
+        return;
+      }
+      addToOrder(result.id);
+      textInput.value = '';
+      textInput.focus();
+    });
+
+    textInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') addBtn.click();
+    });
+
+    checkout.addEventListener('click', doCheckout);
+    clearBtn.addEventListener('click', ()=>{ if(confirm('Clear the order?')){ state.clear(); renderOrder(); } });
+
+    function doCheckout(){
+      if(state.size === 0){ alert('No items ordered!'); return; }
+      // Build receipt text
+      let lines = [];
+      let subtotal = 0;
+      let totalItems = 0;
+      lines.push('--- The Aadit\'s Cafe Receipt ---');
+      for(const [id, qty] of state.entries()){
+        const item = menu.find(m=>m.id===id);
+        lines.push(${item.name} x${qty}  Rs ${item.price * qty});
+        subtotal += item.price * qty;
+        totalItems += qty;
+      }
+      let discount = 0;
+      if(totalItems >= 3) discount = subtotal * 0.30;
+      const total = subtotal - discount;
+      lines.push('');
+      lines.push(Subtotal: Rs ${subtotal.toFixed(0)});
+      lines.push(Discount: Rs ${discount.toFixed(0)});
+      lines.push(Total: Rs ${total.toFixed(0)});
+      lines.push('Thank you for visiting!');
+
+      // show printable window
+      const w = window.open('', '_blank');
+      w.document.write(<pre style="font-family:monospace;padding:24px">${lines.join('\n')}</pre>);
+      w.document.title = 'Receipt';
+      w.print();
+
+      // keep the order (you might clear after checkout)
     }
+
+    // initial
+    renderMenu();
+    renderOrder();
   </script>
 </body>
 </html>
